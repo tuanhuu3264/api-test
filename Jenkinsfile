@@ -1,15 +1,23 @@
 pipeline {
-  agent any
+  agent {
+    kubernetes {
+      label 'kaniko' // trùng label bạn đặt trong PodTemplate
+      defaultContainer 'kaniko' // mặc định container là kaniko
+    }
+  }
+
   environment {
     IMAGE_TAG = "latest"
     IMAGE = "tuanhuu3264/api-test-k8s:${IMAGE_TAG}"
-    GITOPS_REPO = "git@github.com:tuanhuu3264/devops_k8s.git"  
+    GITOPS_REPO = "git@github.com:tuanhuu3264/devops_k8s.git"
   }
 
   stages {
     stage('Checkout App') {
       steps {
-        git branch: 'main', url: 'https://github.com/tuanhuu3264/api-test.git'
+        container('kaniko') {
+          git branch: 'main', url: 'https://github.com/tuanhuu3264/api-test.git'
+        }
       }
     }
 
@@ -19,8 +27,11 @@ pipeline {
           sh '''
           /kaniko/executor \
             --dockerfile=./api/Dockerfile \
-            --context=./ \
-            --destination=$IMAGE
+            --context=dir:///workspace \
+            --destination=$IMAGE \
+            --skip-tls-verify \
+            --insecure \
+            --docker-config=/kaniko/docker
           '''
         }
       }
@@ -28,7 +39,7 @@ pipeline {
 
     stage('Update GitOps repo') {
       steps {
-        container('alpine') {
+        container('kaniko') {
           withCredentials([sshUserPrivateKey(
               credentialsId: 'gitops-ssh-key',
               keyFileVariable: 'SSH_KEY'

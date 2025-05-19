@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    kubernetes {
-      label 'kaniko' // trùng label bạn đặt trong PodTemplate
-      defaultContainer 'kaniko' // mặc định container là kaniko
-    }
-  }
+  agent any
 
   environment {
     IMAGE_TAG = "latest"

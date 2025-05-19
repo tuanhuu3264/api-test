@@ -1,0 +1,6 @@
+api/node_modules
+api/package-lock.json
+api/.env
+rbac/huutuan.crt
+rbac/huutuan.key
+rbac/huutuan.csr

@@ -4,6 +4,7 @@ pipeline {
   environment {
     IMAGE_TAG = "latest"
     IMAGE = "tuanhuu3264/api-test-k8s:${IMAGE_TAG}"
+    GITOPS_REPO = "git@github.com:tuanhuu3264/devops_k8s.git"  
   }
 
   stages {
@@ -30,7 +31,7 @@ pipeline {
       steps {
         container('alpine') {
           withCredentials([sshUserPrivateKey(
-              credentialsId: 'gitops-ssh-key',  // ✅ ID bạn đã tạo trong Jenkins
+              credentialsId: 'gitops-ssh-key',
               keyFileVariable: 'SSH_KEY'
           )]) {
             sh '''
@@ -39,7 +40,7 @@ pipeline {
             export GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no"
 
             git clone $GITOPS_REPO
-            cd devops_k8s/environments/dev
+            cd devops_k8s/k8s
 
             sed -i "s|image: .*|image: ${IMAGE}|g" deployment.yaml
             git commit -am "Update image to ${IMAGE}"

@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'kubeagent' }
+  agent {  agent any }
 
   environment {
     IMAGE_TAG = "latest"

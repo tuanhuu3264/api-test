@@ -1,6 +1,5 @@
 pipeline {
-  agent {  agent any }
-
+  agent any
   environment {
     IMAGE_TAG = "latest"
     IMAGE = "tuanhuu3264/api-test-k8s:${IMAGE_TAG}"

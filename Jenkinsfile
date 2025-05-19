@@ -45,8 +45,7 @@ pipeline {
                         --context=dir:///workspace \
                         --destination=$IMAGE \
                         --skip-tls-verify \
-                        --insecure \
-                        --docker-config=/kaniko/docker
+                        --insecure 
                     '''
                 }
             }

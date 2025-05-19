@@ -2,15 +2,14 @@ pipeline {
   agent { label 'kubeagent' }
 
   environment {
-    IMAGE_TAG = "${BUILD_NUMBER}"
-    IMAGE = "yourdockerhubuser/my-node-app:${IMAGE_TAG}"
-    GITOPS_REPO = "git@github.com:your-org/gitops-repo.git"
+    IMAGE_TAG = "latest"
+    IMAGE = "tuanhuu3264/api-test-k8s:${IMAGE_TAG}"
   }
 
   stages {
     stage('Checkout App') {
       steps {
-        git branch: 'main', url: 'https://github.com/your-org/nodejs-app.git'
+        git branch: 'main', url: 'https://github.com/tuanhuu3264/api-test.git'
       }
     }
 
@@ -19,8 +18,8 @@ pipeline {
         container('kaniko') {
           sh '''
           /kaniko/executor \
-            --dockerfile=`pwd`/Dockerfile \
-            --context=`pwd` \
+            --dockerfile=./api/Dockerfile \
+            --context=./ \
             --destination=$IMAGE
           '''
         }
@@ -30,16 +29,23 @@ pipeline {
     stage('Update GitOps repo') {
       steps {
         container('alpine') {
-          sh '''
-          git config --global user.email "ci@yourorg.com"
-          git config --global user.name "CI Bot"
+          withCredentials([sshUserPrivateKey(
+              credentialsId: 'gitops-ssh-key',  // ✅ ID bạn đã tạo trong Jenkins
+              keyFileVariable: 'SSH_KEY'
+          )]) {
+            sh '''
+            git config --global user.email "ci@tuanhuu3264.com"
+            git config --global user.name "CI Bot"
+            export GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no"
 
-          git clone $GITOPS_REPO
-          cd gitops-repo/environments/dev
-          sed -i "s|image: .*|image: $IMAGE|g" deployment.yaml
-          git commit -am "Update image to $IMAGE"
-          git push origin main
-          '''
+            git clone $GITOPS_REPO
+            cd devops_k8s/environments/dev
+
+            sed -i "s|image: .*|image: ${IMAGE}|g" deployment.yaml
+            git commit -am "Update image to ${IMAGE}"
+            git push origin main
+            '''
+          }
         }
       }
     }

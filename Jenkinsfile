@@ -53,7 +53,7 @@ pipeline {
 
         stage('Update GitOps repo') {
             agent {
-                label 'docker-build'
+                label 'kaniko'
             }
             steps {
                 container('kaniko') {

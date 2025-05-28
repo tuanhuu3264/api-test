@@ -34,7 +34,7 @@ pipeline {
 
         stage('Build & Push with Kaniko') {
             agent {
-                label 'docker-build'
+                label 'kaniko'
             }
             steps {
                 unstash 'sources'

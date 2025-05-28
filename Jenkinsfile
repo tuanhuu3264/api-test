@@ -34,7 +34,7 @@ pipeline {
 
         stage('Build & Push with Kaniko') {
             agent {
-                label 'kaniko'
+                label 'docker-build'
             }
             steps {
                 unstash 'sources'
@@ -53,7 +53,7 @@ pipeline {
 
         stage('Update GitOps repo') {
             agent {
-                label 'kaniko'
+                label 'docker-build'
             }
             steps {
                 container('kaniko') {

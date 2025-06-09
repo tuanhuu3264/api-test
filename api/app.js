@@ -14,7 +14,6 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
-app.use("/api/users", userRouter);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
